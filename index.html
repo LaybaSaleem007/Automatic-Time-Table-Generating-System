@@ -1,200 +1,221 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Time Table Generating System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet"/>
 
     <style>
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
+          font-family: 'Poppins', sans-serif;
+          background-color: #f0f4ff;
+          color: #1e293b;
+          text-align: center;
         }
 
         header {
-            background-color: #2c3e50;
-            color: white;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+          background-color: #1e3a5f;
+          padding: 18px 40px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        header h2 {
+          color: white;
+          font-size: 1.2rem;
+          font-weight: 600;
         }
 
         nav a {
-            color: white;
-            margin: 10px;
-            text-decoration: none;
+          color: #94b8d8;
+          text-decoration: none;
+          margin-left: 24px;
+          font-size: 0.9rem;
+          transition: color 0.2s;
+        }
+
+        nav a:hover {
+          color: white;
         }
 
         .hero {
-            text-align: center;
-            padding: 100px;
-            background-color: #ecf0f1;
+          padding: 80px 20px 60px;
         }
 
         .hero h1 {
-            font-size: 40px;
-            color: #2c3e50;
+          font-size: 2.4rem;
+          font-weight: 700;
+          color: #1e3a5f;
+          margin-bottom: 12px;
         }
 
         .hero p {
-            font-size: 18px;
-            color: #555;
+          font-size: 1rem;
+          color: #64748b;
         }
 
-        .hero button {
-            padding: 12px 20px;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            cursor: pointer;
-            margin-top: 20px;
+        .divider {
+          width: 60px;
+          height: 4px;
+          background-color: #3b82f6;
+          border-radius: 2px;
+          margin: 20px auto 0;
         }
 
-        /* LOGIN PANEL */
-        .login-panel {
-            text-align: center;
-            padding: 60px;
-            background-color: #ffffff;
+        .portals {
+          display: flex;
+          justify-content: center;
+          gap: 30px;
+          padding: 40px 20px 80px;
+          flex-wrap: wrap;
         }
 
-        .portal-box {
-            display: inline-block;
-            width: 220px;
-            margin: 20px;
-            padding: 25px;
-            border-radius: 10px;
-            color: white;
-            vertical-align: top;
+        .card {
+          background: white;
+          border-radius: 16px;
+          padding: 40px 30px;
+          width: 220px;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+          transition: transform 0.2s, box-shadow 0.2s;
+          cursor: pointer;
         }
 
-        .portal-box button {
-            margin-top: 15px;
-            padding: 10px 18px;
-            border: none;
-            background-color: white;
-            cursor: pointer;
-            border-radius: 5px;
-            font-weight: bold;
+        .card:hover {
+          transform: translateY(-6px);
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.13);
         }
 
-        .student {
-            background-color: #3498db;
+        .icon-circle {
+          width: 80px;
+          height: 80px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 auto 20px;
         }
 
-        .teacher {
-            background-color: #27ae60;
+        .icon-circle svg {
+          width: 38px;
+          height: 38px;
         }
 
-        .admin {
-            background-color: #e74c3c;
+        .blue-bg   { background-color: #dbeafe; }
+        .green-bg  { background-color: #dcfce7; }
+        .orange-bg { background-color: #ffedd5; }
+
+        .card h3 {
+          font-size: 1.05rem;
+          font-weight: 600;
+          color: #1e293b;
+          margin-bottom: 8px;
         }
 
-        /* FEATURES */
-        .features {
-            padding: 50px;
-            text-align: center;
+        .card p {
+          font-size: 0.82rem;
+          color: #64748b;
+          line-height: 1.5;
+          margin-bottom: 24px;
         }
 
-        .feature-box {
-            display: inline-block;
-            width: 200px;
-            height: 150px;
-            margin: 20px;
-            padding: 20px;
-            background-color: #f4f4f4;
-            border-radius: 10px;
-            vertical-align: top;
+        .card-btn {
+          display: inline-block;
+          padding: 9px 22px;
+          border-radius: 8px;
+          font-size: 0.85rem;
+          font-weight: 600;
+          color: white;
+          border: none;
+          cursor: pointer;
+          transition: opacity 0.2s;
         }
+
+        .card-btn:hover { opacity: 0.85; }
+
+        .btn-blue   { background-color: #3b82f6; }
+        .btn-green  { background-color: #22c55e; }
+        .btn-orange { background-color: #f97316; }
 
         footer {
-            background-color: #2c3e50;
-            color: white;
-            text-align: center;
-            padding: 15px;
+          background-color: #1e3a5f;
+          color: #94b8d8;
+          padding: 16px;
+          font-size: 0.85rem;
         }
     </style>
 </head>
-
 <body>
 
 <header>
-    <h2>Time Table System</h2>
+    <h2>TimeTable System</h2>
     <nav>
         <a href="#">Home</a>
-        <a href="#">Features</a>
-        <a href="#">Login</a>
+        <a href="#">About</a>
+        <a href="#">Contact</a>
     </nav>
 </header>
 
-<!-- HERO SECTION -->
 <section class="hero">
-    <h1>Automatic Time Table Generator</h1>
-    <p>Create schedules for classes, teachers, and rooms automatically.</p>
-    <button>Get Started</button>
+    <h1>Time Table Generating System</h1>
+    <p>Select your portal below to get started</p>
+    <div class="divider"></div>
 </section>
 
-<!-- LOGIN PANEL -->
-<section class="login-panel">
-    <h2>Select Your Portal</h2>
+<section class="portals">
 
-    <div class="portal-box student">
+    <div class="card" onclick="window.location.href='student-login.html'">
+        <div class="icon-circle blue-bg">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 10L12 5 2 10l10 5 10-5z"/>
+                <path d="M6 12v5c0 1.657 2.686 3 6 3s6-1.343 6-3v-5"/>
+                <line x1="22" y1="10" x2="22" y2="16"/>
+            </svg>
+        </div>
         <h3>Student Portal</h3>
-        <p>View your timetable and schedule.</p>
-        <button onclick="goToStudent()">Login</button>
+        <p>View your class timetable and schedule.</p>
+        <button class="card-btn btn-blue" onclick="event.stopPropagation(); window.location.href='student-login.html'">Login</button>
     </div>
 
-    <div class="portal-box teacher">
+    <div class="card" onclick="window.location.href='teacher-login.html'">
+        <div class="icon-circle green-bg">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="3" width="20" height="14" rx="2"/>
+                <line x1="8" y1="21" x2="16" y2="21"/>
+                <line x1="12" y1="17" x2="12" y2="21"/>
+                <line x1="7" y1="8" x2="17" y2="8"/>
+                <line x1="7" y1="12" x2="13" y2="12"/>
+            </svg>
+        </div>
         <h3>Teacher Portal</h3>
-        <p>Manage classes and schedules.</p>
-        <button onclick="goToTeacher()">Login</button>
+        <p>Manage your classes and schedule.</p>
+        <button class="card-btn btn-green" onclick="event.stopPropagation(); window.location.href='teacher-login.html'">Login</button>
     </div>
 
-    <div class="portal-box admin">
+    <div class="card" onclick="window.location.href='admin-login.html'">
+        <div class="icon-circle orange-bg">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+        </div>
         <h3>Admin Portal</h3>
-        <p>Generate and manage timetables.</p>
-        <button onclick="goToAdmin()">Login</button>
+        <p>Generate and manage all timetables.</p>
+        <button class="card-btn btn-orange" onclick="event.stopPropagation(); window.location.href='admin-login.html'">Login</button>
     </div>
+
 </section>
 
-<!-- FEATURES -->
-<section class="features">
-    <h2>Our Features</h2>
-
-    <div class="feature-box">
-        <h3>Auto Scheduling</h3>
-        <p>Generate timetables instantly.</p>
-    </div>
-
-    <div class="feature-box">
-        <h3>Conflict Detection</h3>
-        <p>Avoid teacher and room clashes.</p>
-    </div>
-
-    <div class="feature-box">
-        <h3>Easy Management</h3>
-        <p>Manage schedules easily.</p>
-    </div>
-</section>
-
-<!-- FOOTER -->
 <footer>
-    <p>© 2026 Time Table Generating System</p>
+    <p>&copy; 2026 Time Table Generating System</p>
 </footer>
-
-<!-- JAVASCRIPT FIX -->
-<script>
-    function goToStudent() {
-        window.location.href = "student-login.html";
-    }
-
-    function goToTeacher() {
-        window.location.href = "teacher-login.html";
-    }
-
-    function goToAdmin() {
-        window.location.href = "admin-login.html";
-    }
-</script>
 
 </body>
 </html>
