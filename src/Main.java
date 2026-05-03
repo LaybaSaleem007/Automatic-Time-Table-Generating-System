@@ -1,4 +1,7 @@
 
+import logic.TimeTableGenerator;
+import model.Subject;
+
 import java.util.*;
 public class Main
 {
