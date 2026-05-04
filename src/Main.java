@@ -1,18 +1,40 @@
+import TimeTable.*;
 
-import logic.TimeTableGenerator;
-import model.Subject;
+import java.util.Arrays;
+import java.util.List;
 
-import java.util.*;
-public class Main
-{
+public class Main {
     public static void main(String[] args) {
-        List<Subject> subjects=new ArrayList<>();
-           subjects.add(new Subject("Math","Sir Ali"));
-           subjects.add(new Subject("Physics","Mam Shumaila"));
-           subjects.add(new Subject("DB","Sir Mudassar"));
-           subjects.add(new Subject("OOP-L","Sir Shahmeer"));
-            String [] days={"Monday","Tuesday","Wednesday","Thursday","Friday"};
-                String [] slots={"9-10","10-11","11-12","1-2","2-3","3-4"};
-                TimeTableGenerator.generate(subjects,days,slots);
+
+        Teacher t1 = new Teacher(1, "Ali");
+        Teacher t2 = new Teacher(2, "Saira");
+        Teacher t3 = new Teacher(3, "Shumaila");
+        List<Teacher> teachers = Arrays.asList(t1, t2, t3);
+
+        List<Subject> subjects = Arrays.asList(
+                new Subject(1, "Multivariate Calculus", t2),
+                new Subject(2, "Linear Algebra", t3),
+                new Subject(3, "Database", t1),
+                new Subject(4, "DLD", t1)
+        );
+
+        String[] days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
+
+        List<Room> rooms = Arrays.asList(
+                new Room(10, "R11"),
+                new Room(11, "R12")
+        );
+
+        String[] slots = {"9-10", "10-11", "11-12", "1-2", "2-3", "3-4"};
+
+        TimeTableGenerator generator = new TimeTableGenerator();
+
+        List<Lecture> timetable = generator.generate(subjects, teachers, rooms, days, slots);
+
+        System.out.println("Size = " + timetable.size());
+
+        for (Lecture l : timetable) {
+            System.out.println(l.Day + " " + l.TimeSlot + " --> " + l.subject.name + " | " + l.teacher.name);
+        }
     }
 }
