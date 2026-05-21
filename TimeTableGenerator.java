@@ -1,5 +1,4 @@
 package TimeTable;
-import logic.ConflictChecker;
 
 import java.util.*;
 public class TimeTableGenerator {

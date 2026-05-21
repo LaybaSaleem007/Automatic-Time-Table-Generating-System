@@ -1,5 +1,9 @@
 package TimeTable;
 
+import Model.Room;
+import Model.Subject;
+import Model.Teacher;
+
 public class Lecture
 {
     public Subject subject;
