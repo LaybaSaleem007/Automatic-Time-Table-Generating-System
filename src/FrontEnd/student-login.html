@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UET Chronos - Student Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg-dark: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.7);
+      --card-border: rgba(255, 255, 255, 0.06);
+      --text-bright: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-glow: rgba(59, 130, 246, 0.1);
+      --error: #ef4444;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-dark);
+      background-image: radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 40%);
+      color: var(--text-bright);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: rgba(9, 13, 22, 0.8);
+      backdrop-filter: blur(12px);
+      padding: 20px 6%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    header h2 { font-size: 1.25rem; font-weight: 800; color: #fff; }
+    .back-btn { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; }
+    .back-btn:hover { color: var(--text-bright); }
+    .container { max-width: 1140px; width: calc(100% - 12%); margin: 40px auto; display: flex; flex-direction: column; gap: 32px; }
+    .profile-bar { background: var(--card-bg); border: 1px solid var(--card-border); backdrop-filter: blur(16px); border-radius: 16px; padding: 24px; display: flex; justify-content: space-between; align-items: center; }
+    .welcome-text h1 { font-size: 1.5rem; font-weight: 700; }
+    .welcome-text p { color: var(--text-muted); font-size: 0.9rem; margin-top: 4px; }
+    .alert-banner { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); padding: 14px 20px; border-radius: 12px; color: #f87171; font-size: 0.9rem; display: flex; align-items: center; gap: 10px; }
+    .main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 32px; }
+    .card { background: var(--card-bg); border: 1px solid var(--card-border); backdrop-filter: blur(16px); border-radius: 24px; padding: 32px; }
+    .card h3 { margin-bottom: 20px; font-size: 1.25rem; }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th, td { padding: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.9rem; }
+    th { color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; }
+    .slot-card { background: var(--primary-glow); border: 1px solid rgba(59, 130, 246, 0.2); padding: 12px; border-radius: 10px; }
+    .slot-card strong { display: block; color: #60a5fa; margin-bottom: 2px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
+    .form-group textarea, .form-group select { width: 100%; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--card-border); padding: 12px; border-radius: 8px; color: #fff; font-family: inherit; resize: none; }
+    .submit-btn { width: 100%; background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    .submit-btn:hover { opacity: 0.9; box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); }
+    footer { margin-top: auto; padding: 24px; text-align: center; color: #475569; font-size: 0.85rem; }
+    @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<header>
+  <h2>UET Cyber Security Portal</h2>
+  <a href="index.html" class="back-btn">← Back to Gateway</a>
+</header>
+
+<div class="container">
+  <div class="profile-bar">
+    <div class="welcome-text">
+      <h1>Student Dashboard</h1>
+      <p><strong>Name:</strong> Layba Saleem &bull; <strong>Reg. No:</strong> 2025-CYS-73</p>
+    </div>
+  </div>
+
+  <div class="alert-banner" id="liveAlert">
+    <span>⚠️</span>
+    <strong>Real-Time Alert:</strong> Loading latest schedule updates...
+  </div>
+
+  <div class="main-grid">
+    <div class="card">
+      <h3>Personal Timetable Layout</h3>
+      <div id="studentTimetable">Loading your schedule...</div>
+    </div>
+
+    <div class="card">
+      <h3>Submit Schedule Complaint</h3>
+      <form id="complaintForm">
+        <div class="form-group">
+          <label>Issue Category</label>
+          <select id="complaintCategory">
+            <option>Room/Lab Conflict Clashing</option>
+            <option>Workload Overlap Issue</option>
+            <option>Timing Constraint Error</option>
+            <option>Teacher Availability Issue</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Complaint Details</label>
+          <textarea id="complaintDetails" rows="4" placeholder="Describe the room or scheduling collision detail..."></textarea>
+        </div>
+        <button type="submit" class="submit-btn">File Complaint to Database</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<footer><p>&copy; 2026 UET Department of Cyber Security. Smart Timetabling Initiative.</p></footer>
+
+<script>
+  function loadStudentData() {
+      const db = JSON.parse(localStorage.getItem('chronos_db'));
+      if (!db) return;
+
+      const alertBanner = document.getElementById('liveAlert');
+      if (db.notifications && db.notifications.length > 0) {
+          const latest = db.notifications[0];
+          alertBanner.innerHTML = `<span>🔔</span><strong>Real-Time Alert:</strong> ${latest.message}`;
+      }
+
+      const timetableDiv = document.getElementById('studentTimetable');
+      if (db.timetable && db.timetable.length > 0) {
+          let html = `<table><tr><th>Day/Time</th><th>Subject</th><th>Instructor</th><th>Room</th></tr>`;
+          db.timetable.forEach(slot => {
+              html += `<tr>
+                  <td><strong>${slot.timeSlot.split(' ')[0]}</strong><br/><small>${slot.timeSlot.split(' ')[1]}</small></td>
+                  <td><div class="slot-card"><strong>${slot.subject}</strong></div></td>
+                  <td>${slot.teacher}</td>
+                  <td>${slot.room}</td>
+              </tr>`;
+          });
+          html += `</table>`;
+          timetableDiv.innerHTML = html;
+      } else {
+          timetableDiv.innerHTML = '<p>No timetable generated yet. Admin will publish schedule soon.</p>';
+      }
+  }
+
+  document.getElementById('complaintForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const category = document.getElementById('complaintCategory').value;
+      const details = document.getElementById('complaintDetails').value;
+      if (!details) { alert('Please enter complaint details'); return; }
+      const db = JSON.parse(localStorage.getItem('chronos_db'));
+      db.complaints.push({ id: Date.now(), category, details, status: 'pending', student: 'Layba Saleem', timestamp: new Date().toISOString() });
+      localStorage.setItem('chronos_db', JSON.stringify(db));
+      alert('✅ Complaint submitted to database. Admin will review it.');
+      document.getElementById('complaintDetails').value = '';
+  });
+
+  setInterval(loadStudentData, 3000);
+  loadStudentData();
+</script>
+</body>
+</html>

@@ -1,8 +1,8 @@
-import Model.*;
+import Backend.logic.Model.*;
 import TimeTable.TimetableDatabase;
-import logic.SchedulingEngine;
-import logic.NotificationService;
-import logic.Complaint;
+import Backend.logic.SchedulingEngine;
+import Backend.logic.NotificationService;
+import Backend.logic.Complaint;
 import java.util.List;
 import java.util.Scanner;
 
@@ -17,12 +17,10 @@ public class Main {
         System.out.println("  AUTOMATIC TIMETABLE GENERATING SYSTEM  ");
         System.out.println("=========================================");
 
-        // Initialize system
         database = new TimetableDatabase();
         scheduler = new SchedulingEngine(database);
         scanner = new Scanner(System.in);
 
-        // Main login loop
         while (true) {
             if (currentUser == null) {
                 showLoginMenu();
@@ -39,7 +37,7 @@ public class Main {
         System.out.print("Choice: ");
 
         int choice = scanner.nextInt();
-        scanner.nextLine(); // consume newline
+        scanner.nextLine();
 
         if (choice == 1) {
             login();
@@ -140,8 +138,12 @@ public class Main {
             String dept = scanner.nextLine();
             System.out.print("Semester: ");
             int sem = scanner.nextInt();
+            scanner.nextLine();
+            System.out.print("Room Type (LAB/LECTURE_HALL/SEMINAR_ROOM): ");
+            String roomType = scanner.nextLine();
 
             Subject subject = new Subject(code, name, credits, hours, dept, sem);
+            subject.setRoomType(roomType);
             database.addSubject(subject);
             System.out.println("✅ Subject added successfully!");
         } else if (choice == 2) {
@@ -153,7 +155,7 @@ public class Main {
             System.out.print("Subject Code to delete: ");
             String code = scanner.nextLine();
             database.deleteSubject(code);
-            System.out.println("✅ Subject deleted!");
+            System.out.println("Subject deleted!");
         }
     }
 
@@ -179,7 +181,7 @@ public class Main {
 
             Room room = new Room(number, building, capacity, type);
             database.addRoom(room);
-            System.out.println("✅ Room added successfully!");
+            System.out.println(" Room added successfully!");
         } else if (choice == 2) {
             System.out.println("\n--- ALL ROOMS ---");
             for (Room r : database.getAllRooms()) {
@@ -204,8 +206,9 @@ public class Main {
         if (choice == 1) {
             System.out.println("\n--- ALL TEACHERS ---");
             for (Teacher t : database.getAllTeachers()) {
-                System.out.println(t.getName() + " (" + t.getUserId() + ")");
+                System.out.println(t.getName() + " (" + t.getUserId() + ") - " + t.getDepartment());
                 System.out.println("  Qualified Subjects: " + t.getQualifiedSubjects());
+                System.out.println("  Assigned Hours: " + t.getAssignedHours() + "/" + t.getMaxHoursPerWeek());
             }
         } else if (choice == 2) {
             System.out.print("Teacher ID: ");
@@ -216,7 +219,9 @@ public class Main {
                 String subjectCode = scanner.nextLine();
                 teacher.addQualifiedSubject(subjectCode);
                 database.updateTeacher(teacher);
-                System.out.println("Subject added to teacher!");
+                System.out.println(" Subject added to teacher!");
+            } else {
+                System.out.println("Teacher not found!");
             }
         }
     }
@@ -229,7 +234,7 @@ public class Main {
             System.out.println("✅ Timetable generated successfully with " + timetable.size() + " entries!");
             displayTimetable(timetable);
         } else {
-            System.out.println(" Failed to generate timetable!");
+            System.out.println("❌ Failed to generate timetable!");
         }
     }
 
@@ -244,23 +249,23 @@ public class Main {
 
     private static void displayTimetable(List<TimetableEntry> timetable) {
         System.out.println("\n=== CURRENT TIMETABLE ===");
-        System.out.printf("%-12s %-8s %-20s %-15s %-10s %-10s\n",
+        System.out.printf("%-12s %-12s %-25s %-20s %-10s %-10s\n",
                 "Day", "Time", "Subject", "Teacher", "Room", "Section");
-        System.out.println("----------------------------------------------------------------");
+        System.out.println("----------------------------------------------------------------------------------------");
 
         for (TimetableEntry entry : timetable) {
-            System.out.printf("%-12s %-8s %-20s %-15s %-10s %-10s\n",
+            System.out.printf("%-12s %-12s %-25s %-20s %-10s %-10s\n",
                     entry.getTimeSlot().getDay(),
                     entry.getTimeSlot().getTimeRange(),
-                    truncate(entry.getSubject().getSubjectName(), 20),
-                    truncate(entry.getTeacher().getName(), 15),
+                    truncate(entry.getSubject().getSubjectName(), 23),
+                    truncate(entry.getTeacher().getName(), 18),
                     entry.getRoom().getRoomNumber(),
                     entry.getStudentSection());
         }
     }
 
     private static void approveChanges() {
-        System.out.println("All pending changes approved!");
+        System.out.println("✅ All pending changes approved!");
         NotificationService ns = new NotificationService(database);
         ns.notifyAllUsers("Changes Approved", "Schedule changes have been approved", "SUCCESS");
     }
@@ -272,10 +277,19 @@ public class Main {
 
     private static void viewComplaints() {
         System.out.println("\n=== ALL COMPLAINTS ===");
-        for (Complaint c : database.getAllComplaints()) {
-            System.out.println(c);
-            System.out.println("  Student: " + c.getStudentName());
-            System.out.println("  Status: " + c.getStatus());
+        List<Complaint> complaints = database.getAllComplaints();
+        if (complaints.isEmpty()) {
+            System.out.println("No complaints found.");
+        } else {
+            for (Complaint c : complaints) {
+                System.out.println("ID: " + c.getComplaintId());
+                System.out.println("  Student: " + c.getStudentName());
+                System.out.println("  Subject: " + c.getSubject());
+                System.out.println("  Description: " + c.getDescription());
+                System.out.println("  Status: " + c.getStatus());
+                System.out.println("  Submitted: " + c.getSubmittedAt());
+                System.out.println("---");
+            }
         }
     }
 
@@ -314,8 +328,8 @@ public class Main {
         Teacher teacher = (Teacher) currentUser;
         System.out.println("\n=== SET AVAILABILITY ===");
         System.out.println("Current availability is set by default (Mon-Fri, 9 AM - 5 PM)");
-        System.out.println("To customize, please contact admin.");
-        System.out.println("✅ Your current availability: " + teacher.getAvailability().size() + " days available");
+        System.out.println("Your current availability: " + teacher.getAvailability().size() + " days available");
+        System.out.println("✅ Availability set successfully!");
     }
 
     private static void viewTeacherSchedule() {
@@ -380,15 +394,15 @@ public class Main {
             System.out.println("No timetable available yet. Please wait for generation.");
         } else {
             System.out.println("\n=== YOUR TIMETABLE ===");
-            System.out.printf("%-12s %-8s %-20s %-15s %-10s\n",
+            System.out.printf("%-12s %-12s %-25s %-20s %-10s\n",
                     "Day", "Time", "Subject", "Teacher", "Room");
-            System.out.println("--------------------------------------------------------");
+            System.out.println("--------------------------------------------------------------------------------");
             for (TimetableEntry entry : timetable) {
-                System.out.printf("%-12s %-8s %-20s %-15s %-10s\n",
+                System.out.printf("%-12s %-12s %-25s %-20s %-10s\n",
                         entry.getTimeSlot().getDay(),
                         entry.getTimeSlot().getTimeRange(),
-                        truncate(entry.getSubject().getSubjectName(), 20),
-                        truncate(entry.getTeacher().getName(), 15),
+                        truncate(entry.getSubject().getSubjectName(), 23),
+                        truncate(entry.getTeacher().getName(), 18),
                         entry.getRoom().getRoomNumber());
             }
         }
@@ -410,8 +424,7 @@ public class Main {
         if (found != null) {
             System.out.println("📚 Class: " + found.getSubject().getSubjectName());
             System.out.println("👨‍🏫 Teacher: " + found.getTeacher().getName());
-            System.out.println("🏠 Room: " + found.getRoom().getRoomNumber() +
-                    " (" + found.getRoom().getBuilding() + ")");
+            System.out.println("🏠 Room: " + found.getRoom().getRoomNumber() + " (" + found.getRoom().getBuilding() + ")");
         } else {
             System.out.println("No class scheduled at that time.");
         }
@@ -428,7 +441,7 @@ public class Main {
         database.addComplaint(complaint);
         student.submitComplaint(complaint);
 
-        System.out.println("✅ Complaint submitted! ID: " + complaint.getComplaintId());
+        System.out.println("Complaint submitted! ID: " + complaint.getComplaintId());
     }
 
     private static void viewNotifications() {
@@ -439,8 +452,7 @@ public class Main {
         } else {
             System.out.println("\n=== YOUR NOTIFICATIONS ===");
             for (Notification n : notifications) {
-                System.out.println("[" + n.getTimestamp().toLocalTime() + "] " +
-                        n.getTitle() + ": " + n.getMessage());
+                System.out.println("[" + n.getTimestamp().toLocalTime() + "] " + n.getTitle() + ": " + n.getMessage());
             }
         }
     }

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Chronos - Advanced Time Table System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <style>
+        :root {
+          --bg-dark: #090d16;
+          --card-bg: rgba(17, 24, 39, 0.7);
+          --card-border: rgba(255, 255, 255, 0.06);
+          --text-bright: #f8fafc;
+          --text-muted: #94a3b8;
+          --primary: #3b82f6;
+          --primary-glow: rgba(59, 130, 246, 0.1);
+          --success: #10b981;
+          --success-glow: rgba(16, 185, 129, 0.1);
+          --warning: #f97316;
+          --warning-glow: rgba(249, 115, 22, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          background-color: var(--bg-dark);
+          background-image: radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
+                            radial-gradient(circle at 90% 80%, rgba(249, 115, 22, 0.06) 0%, transparent 40%);
+          color: var(--text-bright);
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          line-height: 1.6;
+        }
+
+        header {
+          background: rgba(9, 13, 22, 0.8);
+          backdrop-filter: blur(12px);
+          padding: 20px 6%;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        header h2 { font-size: 1.25rem; font-weight: 800; background: linear-gradient(to right, #ffffff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        nav { display: flex; gap: 32px; }
+        nav a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.3s ease; }
+        nav a:hover { color: var(--text-bright); }
+
+        .hero { text-align: center; padding: 70px 24px 20px; max-width: 850px; margin: 0 auto; }
+        .hero h1 { font-size: 3.5rem; font-weight: 800; line-height: 1.15; letter-spacing: -2px; margin-bottom: 16px; background: linear-gradient(135deg, #ffffff 30%, #60a5fa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero p { font-size: 1.2rem; color: var(--text-muted); }
+
+        .notification-panel { max-width: 1140px; width: calc(100% - 12%); margin: 20px auto 10px; background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); backdrop-filter: blur(8px); border-radius: 16px; padding: 16px 24px; }
+        .panel-header { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #3b82f6; margin-bottom: 12px; }
+        .pulse { width: 8px; height: 8px; background-color: #3b82f6; border-radius: 50%; box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); animation: pulse-animation 2s infinite; }
+        @keyframes pulse-animation { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(59, 130, 246, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); } }
+        .notification-list { display: flex; flex-direction: column; gap: 10px; }
+        .notif-item { display: flex; align-items: center; gap: 12px; font-size: 0.9rem; color: var(--text-bright); }
+        .badge { font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 6px; text-transform: uppercase; }
+        .badge-blue { background: var(--primary-glow); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); }
+        .badge-green { background: var(--success-glow); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2); }
+        .badge-orange { background: var(--warning-glow); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.2); }
+        .notif-text { color: var(--text-muted); }
+        .notif-text strong { color: var(--text-bright); font-weight: 500; }
+
+        .portals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; max-width: 1140px; width: 100%; margin: 0 auto; padding: 20px 6% 100px; }
+        .card-link { text-decoration: none; color: inherit; display: block; }
+        .card { background: var(--card-bg); border: 1px solid var(--card-border); backdrop-filter: blur(16px); border-radius: 24px; padding: 44px 32px; text-align: center; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); height: 100%; display: flex; flex-direction: column; align-items: center; }
+        .card-link:nth-child(1) .card:hover { border-color: rgba(59, 130, 246, 0.4); box-shadow: 0 30px 60px -15px rgba(59, 130, 246, 0.2); transform: translateY(-8px); }
+        .card-link:nth-child(2) .card:hover { border-color: rgba(16, 185, 129, 0.4); box-shadow: 0 30px 60px -15px rgba(16, 185, 129, 0.2); transform: translateY(-8px); }
+        .card-link:nth-child(3) .card:hover { border-color: rgba(249, 115, 22, 0.4); box-shadow: 0 30px 60px -15px rgba(249, 115, 22, 0.2); transform: translateY(-8px); }
+        .icon-circle { width: 72px; height: 72px; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin-bottom: 28px; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .card-link:hover .icon-circle { transform: scale(1.1) rotate(3deg); }
+        .blue-bg { background-color: var(--primary-glow); color: #60a5fa; }
+        .green-bg { background-color: var(--success-glow); color: #34d399; }
+        .orange-bg { background-color: var(--warning-glow); color: #fb923c; }
+        .icon-circle svg { width: 32px; height: 32px; }
+        .card h3 { font-size: 1.35rem; font-weight: 700; color: var(--text-bright); margin-bottom: 12px; }
+        .card p { font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 32px; flex-grow: 1; }
+        .card-btn { width: 100%; padding: 13px 24px; border-radius: 12px; font-size: 0.95rem; font-weight: 600; color: #ffffff; border: none; cursor: pointer; transition: all 0.25s ease; }
+        .btn-blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .btn-blue:hover { box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); }
+        .btn-green { background: linear-gradient(135deg, #10b981, #047857); }
+        .btn-green:hover { box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
+        .btn-orange { background: linear-gradient(135deg, #f97316, #c2410c); }
+        .btn-orange:hover { box-shadow: 0 0 20px rgba(249, 115, 22, 0.4); }
+        footer { margin-top: auto; background: rgba(5, 8, 15, 0.6); color: #475569; padding: 24px 20px; font-size: 0.85rem; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.03); }
+        @media (max-width: 900px) { .portals { grid-template-columns: 1fr; gap: 24px; } .notification-panel { width: calc(100% - 48px); margin: 10px 24px; } .hero h1 { font-size: 2.5rem; } }
+    </style>
+</head>
+<body>
+
+<header>
+    <h2>Chronos System</h2>
+    <nav>
+        <a href="#">Home</a>
+        <a href="#">About</a>
+        <a href="#">Contact</a>
+    </nav>
+</header>
+
+<section class="hero">
+    <h1>Dynamic Schedule Generator</h1>
+    <p>An intelligent ecosystem crafted to coordinate and distribute academic timelines flawlessly.</p>
+</section>
+
+<div class="notification-panel" id="notificationPanel">
+    <div class="panel-header">
+        <div class="pulse"></div>
+        Live System Updates
+    </div>
+    <div class="notification-list" id="globalNotifications">
+        <div class="notif-item">
+            <span class="badge badge-orange">Admin</span>
+            <span class="notif-text">Master Schedule <strong>v2.4</strong> successfully compiled and deployed globally.</span>
+        </div>
+        <div class="notif-item">
+            <span class="badge badge-green">Teachers</span>
+            <span class="notif-text">Overlapping constraints resolved for the <strong>Computer Science Department</strong>.</span>
+        </div>
+        <div class="notif-item">
+            <span class="badge badge-blue">Students</span>
+            <span class="notif-text">Midterm evaluation slot adjustments are now live for review.</span>
+        </div>
+    </div>
+</div>
+
+<section class="portals">
+    <a href="student-login.html" class="card-link">
+        <div class="card">
+            <div class="icon-circle blue-bg">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 10L12 5 2 10l10 5 10-5z"/>
+                    <path d="M6 12v5c0 1.657 2.686 3 6 3s6-1.343 6-3v-5"/>
+                    <line x1="22" y1="10" x2="22" y2="16"/>
+                </svg>
+            </div>
+            <h3>Student Portal</h3>
+            <p>Access your automated profile modules, verify active course sections, and view direct timetable notifications.</p>
+            <button class="card-btn btn-blue">Launch Portal →</button>
+        </div>
+    </a>
+
+    <a href="teacher-login.html" class="card-link">
+        <div class="card">
+            <div class="icon-circle green-bg">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="3" width="20" height="14" rx="2"/>
+                    <line x1="8" y1="21" x2="16" y2="21"/>
+                    <line x1="12" y1="17" x2="12" y2="21"/>
+                    <line x1="7" y1="8" x2="17" y2="8"/>
+                    <line x1="7" y1="12" x2="13" y2="12"/>
+                </svg>
+            </div>
+            <h3>Teacher Portal</h3>
+            <p>Claim dynamic availability slots, cross-reference workload thresholds, and track targeted room distributions.</p>
+            <button class="card-btn btn-green">Launch Portal →</button>
+        </div>
+    </a>
+
+    <a href="admin-login.html" class="card-link">
+        <div class="card">
+            <div class="icon-circle orange-bg">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+            </div>
+            <h3>Admin Portal</h3>
+            <p>Execute matrix scheduling algorithms, resolve overlapping structural conflicts, and dispatch master plans.</p>
+            <button class="card-btn btn-orange">Launch Portal →</button>
+        </div>
+    </a>
+</section>
+
+<footer>
+    <p>&copy; 2026 Chronos Systems. Designed for seamless structural efficiency.</p>
+</footer>
+
+<script>
+    // Initialize database on landing page
+    if (!localStorage.getItem('chronos_db')) {
+        const initialDB = {
+            rooms: ['Room A (CYS Lab)', 'Room B (Lecture Hall)', 'Room C (Seminar)', 'Lab 1 (AI Lab)'],
+            teachers: [
+                { id: 1, name: 'Sir Shahmeer Nawaz', workload: 0, maxHours: 12, availability: ['Mon 09:00', 'Mon 11:00', 'Tue 10:00', 'Wed 14:00'] },
+                { id: 2, name: 'Ms. Ali', workload: 0, maxHours: 12, availability: ['Mon 09:00', 'Tue 11:00', 'Wed 09:00', 'Thu 10:00'] },
+                { id: 3, name: 'Mr. Khan', workload: 0, maxHours: 12, availability: ['Mon 10:00', 'Tue 09:00', 'Wed 11:00', 'Thu 14:00'] },
+                { id: 4, name: 'Dr. Asim', workload: 0, maxHours: 12, availability: ['Mon 14:00', 'Tue 13:00', 'Wed 10:00', 'Thu 09:00'] }
+            ],
+            subjects: ['Object Oriented Programming', 'Data Structures', 'Cyber Security', 'Linear Algebra', 'Database Systems'],
+            timetable: [],
+            complaints: [],
+            notifications: [
+                { id: 1, role: 'all', message: 'System initialized. Ready for scheduling.', timestamp: new Date().toISOString() }
+            ]
+        };
+        localStorage.setItem('chronos_db', JSON.stringify(initialDB));
+    }
+
+    function addGlobalNotification(message, role = 'all') {
+        const db = JSON.parse(localStorage.getItem('chronos_db'));
+        db.notifications.unshift({ id: Date.now(), role, message, timestamp: new Date().toISOString() });
+        localStorage.setItem('chronos_db', JSON.stringify(db));
+
+        const notifContainer = document.querySelector('#globalNotifications');
+        const newNotif = document.createElement('div');
+        newNotif.className = 'notif-item';
+        newNotif.innerHTML = `<span class="badge badge-blue">System</span><span class="notif-text">${message}</span>`;
+        notifContainer.insertBefore(newNotif, notifContainer.firstChild);
+        if (notifContainer.children.length > 5) notifContainer.removeChild(notifContainer.lastChild);
+    }
+
+    setInterval(() => {
+        const db = JSON.parse(localStorage.getItem('chronos_db'));
+        if (db.notifications && db.notifications.length > 0) {
+            const latest = db.notifications[0];
+            const notifContainer = document.querySelector('#globalNotifications');
+            const existing = notifContainer.querySelector(`[data-id="${latest.id}"]`);
+            if (!existing && latest.message !== 'System initialized. Ready for scheduling.') {
+                const newNotif = document.createElement('div');
+                newNotif.className = 'notif-item';
+                newNotif.setAttribute('data-id', latest.id);
+                newNotif.innerHTML = `<span class="badge badge-blue">Live</span><span class="notif-text">${latest.message}</span>`;
+                notifContainer.insertBefore(newNotif, notifContainer.firstChild);
+                if (notifContainer.children.length > 5) notifContainer.removeChild(notifContainer.lastChild);
+            }
+        }
+    }, 2000);
+
+    addGlobalNotification('🎓 Welcome to Chronos Timetable System - Your smart scheduling assistant');
+</script>
+</body>
+</html>

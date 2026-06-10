@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Teacher Portal - TEMPUS</title>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', Arial; background: #0a0a0a; color: white; padding: 20px; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .card { background: #1a1a2e; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    input, textarea, select { width: 100%; padding: 10px; margin: 10px 0; background: #2a2a3e; color: white; border: none; border-radius: 5px; }
+    button { background: #10b981; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+    button.danger { background: #ef4444; }
+    button.warning { background: #f59e0b; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px; text-align: left; border-bottom: 1px solid #333; }
+    .hidden { display: none; }
+    h2, h3 { color: #10b981; margin-bottom: 15px; }
+    .availability-slot { background: #2a2a3e; padding: 8px; margin: 5px; border-radius: 5px; display: inline-block; cursor: pointer; }
+    .availability-slot.selected { background: #10b981; }
+    .workload-bar { background: #333; height: 20px; border-radius: 10px; overflow: hidden; margin: 10px 0; }
+    .workload-fill { background: #10b981; height: 100%; width: 0%; }
+    .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+    .status-pending { background: #f59e0b; }
+    .status-approved { background: #10b981; }
+    .status-rejected { background: #ef4444; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div id="loginBox" class="card">
+    <h2>Teacher Login</h2>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <p id="errorMsg" style="color: red;"></p>
+  </div>
+
+  <div id="dashboard" class="hidden">
+    <!-- Header with teacher info -->
+    <div class="card">
+      <h2 id="teacherName">Welcome, Teacher</h2>
+      <div class="workload-bar">
+        <div class="workload-fill" id="workloadFill"></div>
+      </div>
+      <p>Workload: <span id="workloadHours">0</span> / <span id="maxHours">20</span> hours per week</p>
+    </div>
+
+    <div class="grid-2">
+      <!-- LEFT COLUMN: Schedule and Availability -->
+      <div>
+        <div class="card">
+          <h3>📅 My Schedule</h3>
+          <div id="timetable">Loading...</div>
+        </div>
+
+        <div class="card">
+          <h3>⏰ My Availability Preferences</h3>
+          <p><small>Click on time slots to mark when you're available to teach</small></p>
+          <div id="availabilityGrid"></div>
+          <button onclick="saveAvailability()" class="warning">Save Availability Preferences</button>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: Requests and Notifications -->
+      <div>
+        <div class="card">
+          <h3>📝 Request Schedule Change</h3>
+          <select id="classToChange">
+            <option value="">Select a class to request change</option>
+          </select>
+          <input type="text" id="preferredTime" placeholder="Preferred new time (e.g., Wednesday 11:00 AM)">
+          <textarea id="changeReason" rows="3" placeholder="Reason for change request..."></textarea>
+          <button onclick="submitChangeRequest()">Submit Request to Admin</button>
+          <p id="requestStatus" style="margin-top: 10px; font-size: 12px;"></p>
+        </div>
+
+        <div class="card">
+          <h3>📊 My Pending Requests</h3>
+          <div id="pendingRequests">No pending requests</div>
+        </div>
+
+        <div class="card">
+          <h3>🔔 Notifications</h3>
+          <div id="notifications">Loading...</div>
+        </div>
+      </div>
+    </div>
+
+    <button onclick="logout()" class="danger">Logout</button>
+  </div>
+
+</div>
+
+<script>
+  let currentUser = null;
+  let availabilitySelections = {};
+
+  async function login() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      const formData = new URLSearchParams();
+      formData.append('email', email);
+      formData.append('password', password);
+
+      try {
+          const response = await fetch('api_teacher_login.php', {
+              method: 'POST',
+              body: formData
+          });
+          const result = await response.json();
+
+          if (result.success) {
+              currentUser = result;
+              document.getElementById('loginBox').classList.add('hidden');
+              document.getElementById('dashboard').classList.remove('hidden');
+              document.getElementById('teacherName').innerHTML = `Welcome, ${result.name}`;
+              loadTimetable();
+              loadAvailability();
+              loadRequests();
+              loadNotifications();
+              loadWorkload();
+          } else {
+              document.getElementById('errorMsg').innerText = 'Login failed. Check email/password.';
+          }
+      } catch(e) {
+          document.getElementById('errorMsg').innerText = 'Error connecting to server. Make sure XAMPP is running.';
+      }
+  }
+
+  async function loadTimetable() {
+      try {
+          const response = await fetch(`api_get_timetable.php?user_id=${currentUser.user_id}&role=TEACHER`);
+          const result = await response.json();
+
+          if (result.timetable && result.timetable.length > 0) {
+              let html = '<table><th>Day</th><th>Time</th><th>Subject</th><th>Room</th><th>Section</th></tr>';
+              result.timetable.forEach(t => {
+                  html += `<tr>
+                      <td>${t.day}</td>
+                      <td>${t.start_time} - ${t.end_time}</td>
+                      <td>${t.subject_name}</td>
+                      <td>${t.room_number}</td>
+                      <td>${t.student_section}</td>
+                  </tr>`;
+
+                  // Add to class select dropdown for change requests
+                  const option = document.createElement('option');
+                  option.value = JSON.stringify(t);
+                  option.textContent = `${t.subject_name} - ${t.day} ${t.start_time}`;
+                  document.getElementById('classToChange').appendChild(option);
+              });
+              html += `</table>`;
+              document.getElementById('timetable').innerHTML = html;
+          } else {
+              document.getElementById('timetable').innerHTML = '<p>No classes assigned yet. Admin will generate timetable soon.</p>';
+          }
+      } catch(e) {
+          document.getElementById('timetable').innerHTML = '<p>Error loading schedule</p>';
+      }
+  }
+
+  function loadAvailability() {
+      // Create availability grid (Monday to Friday, time slots)
+      const days = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY'];
+      const timeSlots = ['9:00-10:00', '10:00-11:00', '11:00-12:00', '12:00-13:00', '14:00-15:00', '15:00-16:00', '16:00-17:00'];
+
+      let html = '<table><tr><th>Day</th><th>Available Time Slots</th></tr>';
+      days.forEach(day => {
+          html += `<tr><td><strong>${day}</strong></td><td>`;
+          timeSlots.forEach(slot => {
+              const isSelected = localStorage.getItem(`avail_${currentUser.user_id}_${day}_${slot}`) === 'true';
+              html += `<span class="availability-slot ${isSelected ? 'selected' : ''}"
+                             onclick="toggleAvailability('${day}', '${slot}')">${slot}</span>`;
+          });
+          html += `</td></tr>`;
+      });
+      html += `</table>`;
+      document.getElementById('availabilityGrid').innerHTML = html;
+  }
+
+  function toggleAvailability(day, slot) {
+      const key = `avail_${currentUser.user_id}_${day}_${slot}`;
+      const current = localStorage.getItem(key) === 'true';
+      localStorage.setItem(key, !current);
+      loadAvailability(); // Refresh display
+  }
+
+  async function saveAvailability() {
+      // Save availability to database via API
+      const availability = [];
+      const days = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY'];
+      const timeSlots = ['9:00-10:00', '10:00-11:00', '11:00-12:00', '12:00-13:00', '14:00-15:00', '15:00-16:00', '16:00-17:00'];
+
+      days.forEach(day => {
+          timeSlots.forEach(slot => {
+              if (localStorage.getItem(`avail_${currentUser.user_id}_${day}_${slot}`) === 'true') {
+                  availability.push({ day, timeSlot: slot });
+              }
+          });
+      });
+
+      const formData = new URLSearchParams();
+      formData.append('teacher_id', currentUser.user_id);
+      formData.append('availability', JSON.stringify(availability));
+
+      try {
+          const response = await fetch('api_save_availability.php', {
+              method: 'POST',
+              body: formData
+          });
+          const result = await response.json();
+          alert('Availability saved! Admin can now see your preferences.');
+      } catch(e) {
+          alert('Error saving availability');
+      }
+  }
+
+  async function submitChangeRequest() {
+      const selectedClass = document.getElementById('classToChange').value;
+      const preferredTime = document.getElementById('preferredTime').value;
+      const reason = document.getElementById('changeReason').value;
+
+      if (!selectedClass) {
+          alert('Please select a class to change');
+          return;
+      }
+      if (!preferredTime) {
+          alert('Please enter preferred time');
+          return;
+      }
+      if (!reason) {
+          alert('Please enter a reason for the change');
+          return;
+      }
+
+      const classData = JSON.parse(selectedClass);
+
+      const formData = new URLSearchParams();
+      formData.append('teacher_id', currentUser.user_id);
+      formData.append('teacher_name', currentUser.name);
+      formData.append('subject', classData.subject_name);
+      formData.append('current_time', `${classData.day} ${classData.start_time}-${classData.end_time}`);
+      formData.append('current_room', classData.room_number);
+      formData.append('preferred_time', preferredTime);
+      formData.append('reason', reason);
+
+      try {
+          const response = await fetch('api_request_change.php', {
+              method: 'POST',
+              body: formData
+          });
+          const result = await response.json();
+
+          if (result.success) {
+              alert('Change request submitted to admin!');
+              document.getElementById('preferredTime').value = '';
+              document.getElementById('changeReason').value = '';
+              document.getElementById('requestStatus').innerHTML = '✅ Request submitted. Waiting for admin approval.';
+              loadRequests();
+          } else {
+              alert('Failed to submit request');
+          }
+      } catch(e) {
+          alert('Error submitting request');
+      }
+  }
+
+  async function loadRequests() {
+      try {
+          const response = await fetch(`api_get_teacher_requests.php?teacher_id=${currentUser.user_id}`);
+          const result = await response.json();
+
+          if (result.requests && result.requests.length > 0) {
+              let html = '';
+              result.requests.forEach(req => {
+                  let statusClass = req.status === 'PENDING' ? 'status-pending' : (req.status === 'APPROVED' ? 'status-approved' : 'status-rejected');
+                  html += `<div style="background: #2a2a3e; padding: 10px; margin: 10px 0; border-radius: 5px;">
+                              <p><strong>${req.subject}</strong> - Current: ${req.current_time}</p>
+                              <p>Requested: ${req.preferred_time}</p>
+                              <p>Reason: ${req.reason}</p>
+                              <p><span class="status-badge ${statusClass}">${req.status}</span></p>
+                              ${req.admin_response ? `<p><small>Admin response: ${req.admin_response}</small></p>` : ''}
+                           </div>`;
+              });
+              document.getElementById('pendingRequests').innerHTML = html;
+          } else {
+              document.getElementById('pendingRequests').innerHTML = '<p>No pending requests</p>';
+          }
+      } catch(e) {
+          document.getElementById('pendingRequests').innerHTML = '<p>Error loading requests</p>';
+      }
+  }
+
+  async function loadNotifications() {
+      try {
+          const response = await fetch(`api_get_notifications.php?user_id=${currentUser.user_id}`);
+          const result = await response.json();
+
+          if (result.notifications && result.notifications.length > 0) {
+              let html = '';
+              result.notifications.forEach(n => {
+                  html += `<div style="padding: 10px; border-bottom: 1px solid #333;">
+                      <strong>${n.title}</strong><br/>
+                      <small>${n.message}</small>
+                      <br/><small style="color: #666;">${n.timestamp}</small>
+                  </div>`;
+              });
+              document.getElementById('notifications').innerHTML = html;
+          } else {
+              document.getElementById('notifications').innerHTML = '<p>No notifications</p>';
+          }
+      } catch(e) {
+          document.getElementById('notifications').innerHTML = '<p>Error loading notifications</p>';
+      }
+  }
+
+  async function loadWorkload() {
+      try {
+          const response = await fetch(`api_get_workload.php?teacher_id=${currentUser.user_id}`);
+          const result = await response.json();
+          if (result.success) {
+              document.getElementById('workloadHours').innerText = result.assigned_hours;
+              document.getElementById('maxHours').innerText = result.max_hours;
+              const percentage = (result.assigned_hours / result.max_hours) * 100;
+              document.getElementById('workloadFill').style.width = percentage + '%';
+          }
+      } catch(e) {
+          // Use default if API not ready
+          document.getElementById('workloadHours').innerText = '0';
+          document.getElementById('maxHours').innerText = '20';
+      }
+  }
+
+  function logout() {
+      currentUser = null;
+      document.getElementById('loginBox').classList.remove('hidden');
+      document.getElementById('dashboard').classList.add('hidden');
+      document.getElementById('email').value = '';
+      document.getElementById('password').value = '';
+  }
+</script>
+</body>
+</html>

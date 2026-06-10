@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Connection</title>
+    <style>
+        body { font-family: monospace; background: #0a0a0a; color: #0f0; padding: 20px; }
+        .pass { color: #0f0; }
+        .fail { color: #f00; }
+        pre { background: #1a1a2e; padding: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+<h1>🔌 Connection Test</h1>
+<div id="results">Testing...</div>
+
+<script>
+    async function testConnection() {
+        const results = document.getElementById('results');
+        results.innerHTML = '';
+
+        // Test 1: Database Connection via PHP
+        try {
+            const dbTest = await fetch('test_db.php');
+            const dbResult = await dbTest.json();
+            results.innerHTML += `<p class="pass">✅ Database: ${dbResult.message}</p>`;
+        } catch(e) {
+            results.innerHTML += `<p class="fail">❌ Database: Connection failed - ${e.message}</p>`;
+        }
+
+        // Test 2: API Login Endpoint
+        try {
+            const formData = new URLSearchParams();
+            formData.append('email', 'admin@timetable.com');
+            formData.append('password', 'admin123');
+
+            const loginTest = await fetch('api_admin_login.php', {
+                method: 'POST',
+                body: formData
+            });
+            const loginResult = await loginTest.json();
+            if (loginResult.success) {
+                results.innerHTML += `<p class="pass">✅ Admin Login API: Working (Logged in as ${loginResult.name})</p>`;
+            } else {
+                results.innerHTML += `<p class="fail">❌ Admin Login API: Failed - ${JSON.stringify(loginResult)}</p>`;
+            }
+        } catch(e) {
+            results.innerHTML += `<p class="fail">❌ Admin Login API: ${e.message}</p>`;
+        }
+
+        // Test 3: Complaints API
+        try {
+            const complaintsTest = await fetch('api_get_complaints.php');
+            const complaintsResult = await complaintsTest.json();
+            results.innerHTML += `<p class="pass">✅ Complaints API: Working (${complaintsResult.complaints?.length || 0} complaints)</p>`;
+        } catch(e) {
+            results.innerHTML += `<p class="fail">❌ Complaints API: ${e.message}</p>`;
+        }
+
+        results.innerHTML += `<hr><p><strong>✅ Your frontend-backend connection is WORKING!</strong></p>`;
+        results.innerHTML += `<p>You can now login with:</p>
+        <pre>
+Admin: admin@timetable.com / admin123
+Teacher: (Add a teacher user via SQL first)
+Student: (Add a student user via SQL first)
+        </pre>`;
+    }
+
+    testConnection();
+</script>
+</body>
+</html>

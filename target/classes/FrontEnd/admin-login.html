@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UET Chronos - Admin Control Center</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg-dark: #070a13;
+      --card-bg: rgba(22, 30, 49, 0.7);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text-bright: #ffffff;
+      --text-muted: #94a3b8;
+      --accent-blue: #3b82f6;
+      --accent-orange: #f97316;
+      --accent-green: #10b981;
+      --danger: #ef4444;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-dark);
+      background-image: radial-gradient(circle at 80% 20%, rgba(249, 115, 22, 0.05) 0%, transparent 40%),
+                        radial-gradient(circle at 10% 80%, rgba(59, 130, 246, 0.06) 0%, transparent 40%);
+      color: var(--text-bright);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: rgba(7, 10, 19, 0.8);
+      backdrop-filter: blur(12px);
+      padding: 18px 6%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--card-border);
+    }
+    header h2 { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.5px; }
+    .back-btn { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
+    .back-btn:hover { color: var(--text-bright); }
+    .container { max-width: 1200px; width: calc(100% - 10%); margin: 32px auto; display: flex; flex-direction: column; gap: 28px; }
+    .status-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+    .status-card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 16px; backdrop-filter: blur(10px); }
+    .status-card span { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .status-card p { font-size: 1.5rem; font-weight: 700; margin-top: 4px; }
+    .workspace-layout { display: grid; grid-template-columns: 1.2fr 1.8fr; gap: 28px; }
+    @media (max-width: 950px) { .workspace-layout { grid-template-columns: 1fr; } }
+    .panel-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 24px; padding: 28px; backdrop-filter: blur(20px); display: flex; flex-direction: column; }
+    .panel-card h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 6px; }
+    .panel-card .subtitle { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 24px; }
+    .input-stack { display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; }
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .field-group label { font-size: 0.82rem; font-weight: 600; color: #cbd5e1; }
+    .field-group input, .field-group select {
+      background: rgba(10, 15, 30, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: white;
+      font-family: inherit;
+      font-size: 0.9rem;
+      transition: border-color 0.2s;
+    }
+    .field-group input:focus, .field-group select:focus { outline: none; border-color: var(--accent-blue); }
+    .conflict-log-container { background: rgba(10, 14, 26, 0.5); border: 1px solid rgba(255, 255, 255, 0.04); border-radius: 16px; padding: 20px; margin-bottom: 24px; max-height: 250px; overflow-y: auto; }
+    .clash-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; margin-bottom: 10px; font-size: 0.88rem; }
+    .clash-item.danger { background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.15); color: #f87171; }
+    .clash-item.resolved { background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.15); color: #4ade80; }
+    .clash-item.warning { background: rgba(249, 115, 22, 0.08); border: 1px solid rgba(249, 115, 22, 0.15); color: #fb923c; }
+    .action-button { font-family: inherit; font-size: 0.92rem; font-weight: 600; text-align: center; padding: 14px 24px; border-radius: 12px; border: none; cursor: pointer; transition: all 0.25s; }
+    .primary-blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; }
+    .primary-blue:hover { box-shadow: 0 0 20px rgba(59, 130, 246, 0.35); }
+    .success-green { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+    .success-green:hover { box-shadow: 0 0 20px rgba(16, 185, 129, 0.35); }
+    .danger-red { background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; }
+    .hollow-btn { background: transparent; border: 1px solid var(--card-border); color: white; }
+    .hollow-btn:hover { background: rgba(255,255,255,0.04); }
+    .button-group-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .timetable-preview { margin-top: 20px; }
+    .timetable-preview table { width: 100%; border-collapse: collapse; }
+    .timetable-preview th, .timetable-preview td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.8rem; text-align: left; }
+    footer { margin-top: auto; padding: 24px; text-align: center; color: #475569; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h2>Chronos Control Hub</h2>
+  <a href="index.html" class="back-btn">← Leave Dashboard</a>
+</header>
+
+<div class="container">
+  <div class="status-strip" id="statusStrip">
+    <div class="status-card"><span>Registered Rooms</span><p id="roomCount" style="color: var(--accent-blue);">--</p></div>
+    <div class="status-card"><span>Faculty Count</span><p id="teacherCount" style="color: var(--accent-green);">--</p></div>
+    <div class="status-card"><span>Scheduled Slots</span><p id="slotCount" style="color: var(--accent-orange);">--</p></div>
+  </div>
+
+  <div class="workspace-layout">
+    <div class="panel-card">
+      <h3>1. Data Management Intake</h3>
+      <p class="subtitle">Add resources directly to database (Objective 2)</p>
+      <div class="input-stack">
+        <div class="field-group">
+          <label>Subject Name</label>
+          <input type="text" id="subjectName" placeholder="e.g., Artificial Intelligence" />
+        </div>
+        <div class="field-group">
+          <label>Instructor</label>
+          <select id="teacherSelect"></select>
+        </div>
+        <div class="field-group">
+          <label>Room Allocation</label>
+          <select id="roomSelect"></select>
+        </div>
+        <div class="field-group">
+          <label>Time Slot</label>
+          <select id="timeSelect">
+            <option>Mon 09:00-10:30</option><option>Mon 11:00-12:30</option><option>Mon 14:00-15:30</option>
+            <option>Tue 09:00-10:30</option><option>Tue 11:00-12:30</option><option>Tue 14:00-15:30</option>
+            <option>Wed 09:00-10:30</option><option>Wed 11:00-12:30</option><option>Wed 14:00-15:30</option>
+            <option>Thu 09:00-10:30</option><option>Thu 11:00-12:30</option><option>Thu 14:00-15:30</option>
+          </select>
+        </div>
+      </div>
+      <button class="action-button hollow-btn" id="addEntryBtn">+ Add to Database</button>
+    </div>
+
+    <div class="panel-card">
+      <h3>2. Engine Execution & Resolution Output</h3>
+      <p class="subtitle">Run conflict checks and resolve automatically (Objective 1)</p>
+      <div class="conflict-log-container" id="conflictLog">
+        <div class="clash-item resolved">✨ System ready. Click "Run Algorithm" to detect & resolve conflicts.</div>
+      </div>
+      <div class="input-stack" style="margin-bottom: 0;">
+        <button class="action-button primary-blue" id="runAlgorithmBtn" style="margin-bottom: 12px;">⚡ Execute Timetable Generator & Conflict Resolution</button>
+        <div class="button-group-row">
+          <button class="action-button hollow-btn" id="viewTimetableBtn">📅 View Current Timetable</button>
+          <button class="action-button success-green" id="publishBtn">📢 Publish Changes Live</button>
+        </div>
+      </div>
+      <div id="timetableView" class="timetable-preview" style="display: none;"></div>
+    </div>
+  </div>
+</div>
+
+<footer><p>&copy; 2026 University of Engineering & Technology &bull; Layba Saleem (2025-CYS-73)</p></footer>
+
+<script>
+  function loadDB() {
+      if (!localStorage.getItem('chronos_db')) {
+          const initialDB = {
+              rooms: ['Room A (CYS Lab)', 'Room B (Lecture Hall)', 'Room C (Seminar)', 'Lab 1 (AI Lab)'],
+              teachers: [
+                  { id: 1, name: 'Sir Shahmeer Nawaz', workload: 0, maxHours: 12, availability: ['Mon 09:00-10:30', 'Mon 11:00-12:30', 'Tue 10:00-11:30', 'Wed 14:00-15:30'] },
+                  { id: 2, name: 'Ms. Ali', workload: 0, maxHours: 12, availability: ['Mon 09:00-10:30', 'Tue 11:00-12:30', 'Wed 09:00-10:30', 'Thu 10:00-11:30'] },
+                  { id: 3, name: 'Mr. Khan', workload: 0, maxHours: 12, availability: ['Mon 10:00-11:30', 'Tue 09:00-10:30', 'Wed 11:00-12:30', 'Thu 14:00-15:30'] },
+                  { id: 4, name: 'Dr. Asim', workload: 0, maxHours: 12, availability: ['Mon 14:00-15:30', 'Tue 13:00-14:30', 'Wed 10:00-11:30', 'Thu 09:00-10:30'] }
+              ],
+              subjects: ['Object Oriented Programming', 'Data Structures', 'Cyber Security', 'Linear Algebra', 'Database Systems'],
+              timetable: [],
+              complaints: [],
+              notifications: []
+          };
+          localStorage.setItem('chronos_db', JSON.stringify(initialDB));
+      }
+      return JSON.parse(localStorage.getItem('chronos_db'));
+  }
+
+  function saveDB(db) { localStorage.setItem('chronos_db', JSON.stringify(db)); updateStats(); }
+
+  function updateStats() {
+      const db = loadDB();
+      document.getElementById('roomCount').innerText = db.rooms.length;
+      document.getElementById('teacherCount').innerText = db.teachers.length;
+      document.getElementById('slotCount').innerText = db.timetable.length;
+      const teacherSelect = document.getElementById('teacherSelect');
+      teacherSelect.innerHTML = db.teachers.map(t => `<option value="${t.name}">${t.name} (${t.workload}/${t.maxHours} hrs)</option>`).join('');
+      const roomSelect = document.getElementById('roomSelect');
+      roomSelect.innerHTML = db.rooms.map(r => `<option value="${r}">${r}</option>`).join('');
+  }
+
+  function addConflictLog(message, type) {
+      const logDiv = document.getElementById('conflictLog');
+      const entry = document.createElement('div');
+      entry.className = `clash-item ${type}`;
+      entry.innerHTML = type === 'danger' ? `⚠️ ${message}` : (type === 'resolved' ? `✅ ${message}` : `⚡ ${message}`);
+      logDiv.insertBefore(entry, logDiv.firstChild);
+      if (logDiv.children.length > 8) logDiv.removeChild(logDiv.lastChild);
+  }
+
+  function detectConflicts(timetable) {
+      const conflicts = [];
+      for (let i = 0; i < timetable.length; i++) {
+          for (let j = i + 1; j < timetable.length; j++) {
+              if (timetable[i].timeSlot === timetable[j].timeSlot && timetable[i].room === timetable[j].room) {
+                  conflicts.push({ type: 'room', entry1: timetable[i], entry2: timetable[j] });
+              }
+              if (timetable[i].timeSlot === timetable[j].timeSlot && timetable[i].teacher === timetable[j].teacher) {
+                  conflicts.push({ type: 'teacher', entry1: timetable[i], entry2: timetable[j] });
+              }
+          }
+      }
+      return conflicts;
+  }
+
+  function resolveConflicts(timetable, teachers, rooms) {
+      let conflicts = detectConflicts(timetable);
+      let resolvedCount = 0;
+      const alternativeTimes = ['Mon 11:00-12:30', 'Tue 09:00-10:30', 'Wed 14:00-15:30', 'Thu 11:00-12:30', 'Mon 14:00-15:30'];
+
+      for (let conflict of conflicts) {
+          addConflictLog(`Conflict: ${conflict.entry2.teacher} vs ${conflict.entry1.teacher} at ${conflict.entry1.timeSlot} in ${conflict.entry1.room}`, 'danger');
+          for (let newTime of alternativeTimes) {
+              const timeFree = !timetable.some(s => s.timeSlot === newTime && s.room === conflict.entry2.room && s !== conflict.entry2);
+              const teacherFree = !timetable.some(s => s.timeSlot === newTime && s.teacher === conflict.entry2.teacher && s !== conflict.entry2);
+              if (timeFree && teacherFree) {
+                  conflict.entry2.timeSlot = newTime;
+                  resolvedCount++;
+                  addConflictLog(`Resolved: Moved ${conflict.entry2.teacher} to ${newTime} in ${conflict.entry2.room}`, 'resolved');
+                  break;
+              }
+          }
+      }
+      return { resolvedCount, timetable };
+  }
+
+  function generateTimetable() {
+      const db = loadDB();
+      addConflictLog('Starting timetable generation algorithm...', 'warning');
+      let newTimetable = [];
+      const timeSlots = ['Mon 09:00-10:30', 'Mon 11:00-12:30', 'Tue 09:00-10:30', 'Tue 11:00-12:30', 'Wed 09:00-10:30', 'Wed 11:00-12:30', 'Thu 09:00-10:30', 'Thu 11:00-12:30'];
+      const subjects = db.subjects;
+
+      for (let i = 0; i < subjects.length && i < timeSlots.length; i++) {
+          const teacher = db.teachers[i % db.teachers.length];
+          const room = db.rooms[i % db.rooms.length];
+          newTimetable.push({
+              id: Date.now() + i,
+              subject: subjects[i],
+              teacher: teacher.name,
+              room: room,
+              timeSlot: timeSlots[i]
+          });
+      }
+
+      db.timetable = newTimetable;
+      saveDB(db);
+      addConflictLog(`Generated ${newTimetable.length} initial timetable entries`, 'resolved');
+      return newTimetable;
+  }
+
+  function runFullResolution() {
+      let db = loadDB();
+      if (db.timetable.length === 0) {
+          addConflictLog('No timetable exists. Generating initial schedule...', 'warning');
+          generateTimetable();
+          db = loadDB();
+      }
+      addConflictLog('Running conflict detection algorithm...', 'warning');
+      const result = resolveConflicts(db.timetable, db.teachers, db.rooms);
+      db.timetable = result.timetable;
+      saveDB(db);
+      addConflictLog(`Resolution complete! ${result.resolvedCount} conflicts fixed automatically.`, 'resolved');
+      displayTimetable();
+      return result;
+  }
+
+  function displayTimetable() {
+      const db = loadDB();
+      const container = document.getElementById('timetableView');
+      if (db.timetable.length === 0) {
+          container.innerHTML = '<p>No schedule generated yet. Run the algorithm first.</p>';
+          container.style.display = 'block';
+          return;
+      }
+      let html = '<table><tr><th>Subject</th><th>Teacher</th><th>Room</th><th>Time Slot</th></tr>';
+      db.timetable.forEach(s => { html += `<tr><td>${s.subject}</td><td>${s.teacher}</td><td>${s.room}</td><td>${s.timeSlot}</td></tr>`; });
+      html += '</table>';
+      container.innerHTML = html;
+      container.style.display = 'block';
+  }
+
+  function publishToAll() {
+      const db = loadDB();
+      const msg = `📢 New timetable published: ${db.timetable.length} slots, all conflicts resolved.`;
+      db.notifications.unshift({ id: Date.now(), role: 'all', message: msg, timestamp: new Date().toISOString() });
+      saveDB(db);
+      addConflictLog('Published to all users! Students and teachers have been notified.', 'resolved');
+      alert('✅ Timetable published! All users (Students/Teachers) will see real-time updates on their portals.');
+  }
+
+  function addManualEntry() {
+      const subject = document.getElementById('subjectName').value;
+      const teacher = document.getElementById('teacherSelect').value;
+      const room = document.getElementById('roomSelect').value;
+      const timeSlot = document.getElementById('timeSelect').value;
+      if (!subject) { alert('Please enter a subject name'); return; }
+      const db = loadDB();
+      db.timetable.push({ id: Date.now(), subject, teacher, room, timeSlot });
+      saveDB(db);
+      addConflictLog(`Added: ${subject} with ${teacher} at ${timeSlot}`, 'resolved');
+      document.getElementById('subjectName').value = '';
+  }
+
+  document.getElementById('addEntryBtn').addEventListener('click', addManualEntry);
+  document.getElementById('runAlgorithmBtn').addEventListener('click', () => { runFullResolution(); });
+  document.getElementById('viewTimetableBtn').addEventListener('click', displayTimetable);
+  document.getElementById('publishBtn').addEventListener('click', publishToAll);
+
+  updateStats();
+  addConflictLog('Admin panel ready. Database simulation active.', 'resolved');
+</script>
+</body>
+</html>

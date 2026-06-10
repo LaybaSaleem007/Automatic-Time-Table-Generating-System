@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Frontend-Backend Connection</title>
+    <style>
+        body { font-family: Arial; background: #0a0a0a; color: white; padding: 20px; }
+        .pass { color: #0f0; background: #1a1a2e; padding: 10px; margin: 5px 0; border-radius: 5px; }
+        .fail { color: #f00; background: #1a1a2e; padding: 10px; margin: 5px 0; border-radius: 5px; }
+        button { background: #6366f1; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 10px 0; }
+        input { padding: 10px; margin: 5px; background: #2a2a3e; color: white; border: none; border-radius: 5px; }
+    </style>
+</head>
+<body>
+<h1>🔌 Frontend-Backend Connection Test</h1>
+
+<div style="background: #1a1a2e; padding: 20px; border-radius: 10px;">
+    <h2>Admin Login Test</h2>
+    <input type="text" id="email" placeholder="Email" value="admin@timetable.com">
+    <input type="password" id="password" placeholder="Password" value="admin123">
+    <button onclick="testAdminLogin()">Test Admin Login</button>
+    <div id="loginResult"></div>
+</div>
+
+<div style="background: #1a1a2e; padding: 20px; border-radius: 10px; margin-top: 20px;">
+    <h2>Test All APIs</h2>
+    <button onclick="testAllAPIs()">Test All APIs</button>
+    <div id="apiResults"></div>
+</div>
+
+<script>
+    async function testAdminLogin() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const resultDiv = document.getElementById('loginResult');
+
+        resultDiv.innerHTML = '<p>⏳ Testing login...</p>';
+
+        const formData = new URLSearchParams();
+        formData.append('email', email);
+        formData.append('password', password);
+
+        try {
+            const response = await fetch('api_admin_login.php', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                resultDiv.innerHTML = `<p class="pass">✅ LOGIN SUCCESSFUL! Welcome ${result.name}</p>
+                                       <p class="pass">✅ Frontend → Backend → MySQL is WORKING!</p>`;
+            } else {
+                resultDiv.innerHTML = `<p class="fail">❌ Login failed. Check database users.</p>`;
+            }
+        } catch(e) {
+            resultDiv.innerHTML = `<p class="fail">❌ ERROR: ${e.message}</p>
+                                   <p>Make sure XAMPP Apache is running!</p>`;
+        }
+    }
+
+    async function testAllAPIs() {
+        const resultsDiv = document.getElementById('apiResults');
+        resultsDiv.innerHTML = '<p>⏳ Testing all APIs...</p>';
+        let html = '';
+
+        // Test 1: config.php
+        try {
+            const res = await fetch('config.php');
+            html += `<p class="pass">✅ config.php - Found (${res.status})</p>`;
+        } catch(e) {
+            html += `<p class="fail">❌ config.php - Not found</p>`;
+        }
+
+        // Test 2: api_admin_login.php
+        try {
+            const formData = new URLSearchParams();
+            formData.append('email', 'admin@timetable.com');
+            formData.append('password', 'admin123');
+            const res = await fetch('api_admin_login.php', { method: 'POST', body: formData });
+            const data = await res.json();
+            if(data.success) {
+                html += `<p class="pass">✅ api_admin_login.php - Working (${data.name})</p>`;
+            } else {
+                html += `<p class="fail">❌ api_admin_login.php - Failed</p>`;
+            }
+        } catch(e) {
+            html += `<p class="fail">❌ api_admin_login.php - ${e.message}</p>`;
+        }
+
+        // Test 3: api_get_complaints.php
+        try {
+            const res = await fetch('api_get_complaints.php');
+            const data = await res.json();
+            html += `<p class="pass">✅ api_get_complaints.php - Working (${data.complaints?.length || 0} complaints)</p>`;
+        } catch(e) {
+            html += `<p class="fail">❌ api_get_complaints.php - ${e.message}</p>`;
+        }
+
+        // Test 4: api_get_timetable.php
+        try {
+            const res = await fetch('api_get_timetable.php?user_id=STU001&role=STUDENT');
+            const data = await res.json();
+            html += `<p class="pass">✅ api_get_timetable.php - Working</p>`;
+        } catch(e) {
+            html += `<p class="fail">❌ api_get_timetable.php - ${e.message}</p>`;
+        }
+
+        resultsDiv.innerHTML = html + `<hr><p>✅ If you see GREEN checks, your frontend is connected to backend!</p>
+                                       <p>👉 <a href="admin-login.html" style="color:#0f0;">Click here to open Admin Login Page</a></p>`;
+    }
+
+    // Auto-run tests when page loads
+    testAllAPIs();
+</script>
+</body>
+</html>

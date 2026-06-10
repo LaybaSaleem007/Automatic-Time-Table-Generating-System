@@ -1,0 +1,555 @@
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Chronos | Smart Conflict Resolution</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <style>
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
+        body {
+          background: #070b13;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          color: #f1f5f9;
+          line-height: 1.5;
+        }
+
+        /* Premium glassmorphic container */
+        .demo-container {
+          max-width: 1280px;
+          margin: 0 auto;
+          padding: 2rem 2rem 3rem;
+        }
+
+        /* header navigation */
+        .demo-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 1rem;
+          margin-bottom: 2rem;
+          padding-bottom: 1rem;
+          border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .logo-area h1 {
+          font-size: 1.7rem;
+          font-weight: 800;
+          background: linear-gradient(135deg, #ffffff, #7c9eff);
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+          letter-spacing: -0.5px;
+        }
+        .logo-area p {
+          font-size: 0.8rem;
+          color: #7e8a9e;
+        }
+        .nav-links {
+          display: flex;
+          gap: 1.8rem;
+        }
+        .nav-links a {
+          color: #b9c3d4;
+          text-decoration: none;
+          font-weight: 500;
+          transition: 0.2s;
+        }
+        .nav-links a:hover {
+          color: #3b82f6;
+        }
+
+        /* page title */
+        .page-title {
+          margin-bottom: 2rem;
+        }
+        .page-title h2 {
+          font-size: 2rem;
+          font-weight: 700;
+          background: linear-gradient(to right, #fff, #9ca3af);
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+        }
+        .page-title p {
+          color: #94a3b8;
+        }
+
+        /* 2-col + responsive */
+        .dashboard-grid {
+          display: grid;
+          grid-template-columns: 1.2fr 0.9fr;
+          gap: 2rem;
+        }
+        @media (max-width: 900px) {
+          .dashboard-grid {
+            grid-template-columns: 1fr;
+          }
+          .demo-container {
+            padding: 1.5rem;
+          }
+        }
+
+        /* glass cards */
+        .glass-card {
+          background: rgba(17, 25, 45, 0.65);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 28px;
+          padding: 1.6rem;
+          transition: all 0.2s;
+        }
+        .card-title {
+          font-size: 1.3rem;
+          font-weight: 700;
+          margin-bottom: 0.5rem;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .card-sub {
+          color: #8b9bb5;
+          font-size: 0.85rem;
+          margin-bottom: 1.5rem;
+          border-left: 2px solid #3b82f6;
+          padding-left: 12px;
+        }
+
+        /* conflict timeline */
+        .conflict-log {
+          background: rgba(0,0,0,0.3);
+          border-radius: 20px;
+          padding: 1rem;
+          margin: 1.5rem 0;
+        }
+        .conflict-entry {
+          display: flex;
+          gap: 12px;
+          padding: 12px;
+          border-radius: 16px;
+          margin-bottom: 12px;
+          font-size: 0.9rem;
+        }
+        .conflict-before {
+          background: rgba(239,68,68,0.12);
+          border-left: 3px solid #ef4444;
+        }
+        .conflict-after {
+          background: rgba(16,185,129,0.08);
+          border-left: 3px solid #10b981;
+        }
+        .resolve-badge {
+          background: rgba(16,185,129,0.2);
+          color: #4ade80;
+          padding: 2px 12px;
+          border-radius: 30px;
+          font-size: 0.7rem;
+          font-weight: 700;
+          display: inline-block;
+        }
+
+        /* timetable preview compact */
+        .timetable-preview table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+        .timetable-preview th, .timetable-preview td {
+          padding: 12px 8px;
+          border-bottom: 1px solid rgba(255,255,255,0.05);
+          font-size: 0.85rem;
+          vertical-align: top;
+        }
+        .timetable-preview th {
+          color: #9ca9c2;
+          font-weight: 600;
+        }
+        .subject-chip {
+          background: rgba(59,130,246,0.2);
+          border-radius: 12px;
+          padding: 6px 8px;
+          margin: 4px 0;
+        }
+
+        /* button styles */
+        .btn {
+          border: none;
+          padding: 12px 22px;
+          border-radius: 40px;
+          font-weight: 600;
+          font-family: inherit;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          font-size: 0.85rem;
+        }
+        .btn-primary {
+          background: linear-gradient(105deg, #3b82f6, #1e40af);
+          color: white;
+          box-shadow: 0 6px 14px rgba(59,130,246,0.25);
+        }
+        .btn-primary:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 12px 22px rgba(59,130,246,0.35);
+        }
+        .btn-outline {
+          background: transparent;
+          border: 1px solid rgba(255,255,255,0.2);
+          color: #e2e8f0;
+        }
+        .btn-outline:hover {
+          background: rgba(255,255,255,0.05);
+          border-color: #3b82f6;
+        }
+        .btn-success {
+          background: linear-gradient(105deg, #10b981, #047857);
+          color: white;
+        }
+        .flex-btns {
+          display: flex;
+          gap: 12px;
+          flex-wrap: wrap;
+          margin-top: 1rem;
+        }
+
+        /* realtime bar */
+        .live-bar {
+          background: rgba(16,185,129,0.08);
+          border-radius: 20px;
+          padding: 1rem;
+          margin-bottom: 1.5rem;
+          border: 1px solid rgba(16,185,129,0.2);
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          flex-wrap: wrap;
+        }
+        .pulse-dot {
+          width: 12px;
+          height: 12px;
+          background: #10b981;
+          border-radius: 50%;
+          box-shadow: 0 0 8px #10b981;
+          animation: pulse-green 1.5s infinite;
+        }
+        @keyframes pulse-green {
+          0% { opacity: 0.5; transform: scale(0.9);}
+          100% { opacity: 1; transform: scale(1.2);}
+        }
+
+        /* resource stats grid */
+        .stats-mini {
+          display: flex;
+          justify-content: space-between;
+          gap: 12px;
+          margin-bottom: 1.5rem;
+        }
+        .stat-block {
+          background: rgba(255,255,255,0.03);
+          padding: 12px;
+          border-radius: 20px;
+          text-align: center;
+          flex: 1;
+        }
+        .stat-num {
+          font-size: 1.5rem;
+          font-weight: 800;
+          color: #f97316;
+        }
+
+        footer {
+          margin-top: 3rem;
+          text-align: center;
+          font-size: 0.75rem;
+          color: #475569;
+          border-top: 1px solid rgba(255,255,255,0.05);
+          padding-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+<div class="demo-container">
+    <div class="demo-header">
+        <div class="logo-area">
+            <h1>Chronos · Auto Timetable Engine</h1>
+            <p>UET Cyber Security — intelligent conflict resolution core</p>
+        </div>
+        <div class="nav-links">
+            <a href="#">Dashboard</a>
+            <a href="#">Algorithms</a>
+            <a href="#">Documentation</a>
+        </div>
+    </div>
+
+    <div class="page-title">
+        <h2>Smart Scheduling Core · Live Conflict Resolution</h2>
+        <p>Real‑time clash detection, automatic room reassignment & workload balancing (OOP project)</p>
+    </div>
+
+    <!-- real-time notification banner -->
+    <div class="live-bar">
+        <div class="pulse-dot"></div>
+        <span><strong>🔔 LIVE NOTIFICATION:</strong> System just auto-resolved a teacher-room conflict (Monday 9:00 AM). New timetable published to students & faculty.</span>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- LEFT PANEL: conflict resolver and scheduler simulation (core demo) -->
+        <div class="glass-card">
+            <div class="card-title">
+                ⚙️ Conflict Detection & Auto‑Repair Engine
+            </div>
+            <div class="card-sub">
+                Implements Objective 1 & 2 — instantly fixes double-booked teachers/rooms
+            </div>
+
+            <!-- visual conflict log BEFORE / AFTER -->
+            <div class="conflict-log">
+                <div class="conflict-entry conflict-before">
+                    <span>⚠️</span>
+                    <div>
+                        <strong>Conflict Detected:</strong> Room A (09:00 Monday) → Teacher Ms. Ali AND Teacher Mr. Khan simultaneously.
+                        <div style="font-size:0.7rem; margin-top:4px;">Double occupation clash · system flagged priority</div>
+                    </div>
+                </div>
+                <div class="conflict-entry conflict-after">
+                    <span>✅</span>
+                    <div>
+                        <strong>Automated Fix (Algorithm executed):</strong> Mr. Khan moved to Room B @ 10:00 AM. Ms. Ali keeps Room A 09:00.
+                        <span class="resolve-badge" style="margin-left: 8px;">RESOLVED</span>
+                    </div>
+                </div>
+                <div class="conflict-entry conflict-after">
+                    <span>✨</span>
+                    <div>
+                        <strong>Workload Balance Check:</strong> Teacher workload redistributed — Ms. Ali now has 4 slots/week (optimal).
+                    </div>
+                </div>
+            </div>
+
+            <!-- real-time demo interactive resolver -->
+            <div style="margin: 1rem 0 1rem 0;">
+                <label style="font-size:0.8rem; color:#b9c3d4;">🔁 Simulate new random scheduling conflict (demo engine):</label>
+                <div class="flex-btns" style="margin-top: 8px;">
+                    <button id="simulateConflictBtn" class="btn btn-outline">🚨 Trigger Random Clash</button>
+                    <button id="resolveEngineBtn" class="btn btn-primary">⚡ Run Conflict Resolution Algorithm</button>
+                </div>
+                <p id="conflictFeedback" style="font-size:0.8rem; margin-top: 12px; color: #facc15;"></p>
+            </div>
+
+            <!-- database + rooms / teachers unified display (Objective 2: manage all) -->
+            <div class="stats-mini">
+                <div class="stat-block"><span class="stat-num">12</span><br/>Rooms Active</div>
+                <div class="stat-block"><span class="stat-num">24</span><br/>Teachers</div>
+                <div class="stat-block"><span class="stat-num">08</span><br/>Student Sections</div>
+            </div>
+
+            <div>
+                <button id="publishToAllBtn" class="btn btn-success" style="width:100%;">📢 Publish to All Users (Real‑Time Alerts)</button>
+                <p style="font-size:0.7rem; margin-top: 10px; color:#8b9bb5;">*Publishing triggers notification panel for students, teachers & admin (Objective 3)</p>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: live timetable preview & room allocation matrix -->
+        <div class="glass-card">
+            <div class="card-title">
+                📅 Generated Schedule (Conflict‑Free Snapshot)
+            </div>
+            <div class="card-sub">
+                Smart room allocation · capacity & equipment aware
+            </div>
+            <div class="timetable-preview">
+                <table>
+                    <thead>
+                    <tr><th>Time / Room</th><th>Room A (CYS Lab)</th><th>Room B (Lecture Hall)</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td><strong>Mon 09:00</strong></td>
+                        <td><div class="subject-chip">🔹 OOP (Ms. Ali)</div></td>
+                        <td><div class="subject-chip" style="background:rgba(16,185,129,0.15);">🔸 Free slot</div></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Mon 10:00</strong></td>
+                        <td><div class="subject-chip">📘 Linear Algebra (Dr. Asim)</div></td>
+                        <td><div class="subject-chip">⚡ OOP Lab (Mr. Khan)</div></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tue 11:00</strong></td>
+                        <td><div class="subject-chip">🔐 Cyber Sec (Ms. Ali)</div></td>
+                        <td><div class="subject-chip">📊 Database (Sir Shahmeer)</div></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="margin-top: 1rem; background:rgba(59,130,246,0.1); border-radius: 18px; padding: 10px;">
+                <div style="display: flex; justify-content: space-between;">
+                    <span>🏫 Room Allocation Logic:</span>
+                    <span style="color:#f97316;">✔️ Capacity: 40+ seats matched</span>
+                </div>
+                <div style="font-size:0.8rem; margin-top: 4px;">No double-booking active · load balancing active across instructors</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- third section: extra demonstration of Objective 2 (manage rooms/teachers) and Objective 3 -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.8rem; margin-top: 2rem;">
+        <div class="glass-card">
+            <div class="card-title">👩‍🏫 Teacher Availability & Workload</div>
+            <div style="margin: 12px 0;">
+                <div style="display:flex; justify-content: space-between;"><span>Ms. Ali</span><span style="color:#10b981;">● 5/9 hours</span></div>
+                <div style="display:flex; justify-content: space-between; margin-top: 6px;"><span>Mr. Khan</span><span style="color:#10b981;">● 4/9 hours</span></div>
+                <div style="display:flex; justify-content: space-between; margin-top: 6px;"><span>Sir Shahmeer Nawaz</span><span style="color:#facc15;">● 6/9 hours</span></div>
+            </div>
+            <button id="balanceLoadBtn" class="btn btn-outline" style="width:100%;">♻️ Suggest Workload Rebalance</button>
+        </div>
+        <div class="glass-card">
+            <div class="card-title">🔔 Real‑Time Notification Feed</div>
+            <div id="notificationFeed" style="max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+                <div style="background:rgba(59,130,246,0.1); padding: 8px; border-radius: 16px;">✅ Admin published schedule: v2.4 deployed at 09:32</div>
+                <div style="background:rgba(16,185,129,0.1); padding: 8px; border-radius: 16px;">📢 Teacher Ms. Ali confirmed availability slots</div>
+                <div style="background:rgba(249,115,22,0.1); padding: 8px; border-radius: 16px;">🔄 System resolved room clash (Room A → B)</div>
+            </div>
+            <button id="addDemoNotificationBtn" class="btn btn-outline" style="margin-top: 12px; width:100%;">➕ Simulate New Alert</button>
+        </div>
+        <div class="glass-card">
+            <div class="card-title">🏛️ Resource Matrix (rooms & sections)</div>
+            <div><strong>Rooms:</strong> CYS Lab A, B, Lecture Hall 1,2, Seminar Room</div>
+            <div style="margin-top: 8px;"><strong>Sections:</strong> CS-A, CS-B, CY-73, CY-74, SE-3</div>
+            <div style="margin-top: 12px; font-size:0.85rem;">✔️ All resources integrated into central DB</div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Automatic Timetable Generating System — Layba Saleem (2025-CYS-73) | OOP Project, UET Dept. of Cyber Security | Smart conflict resolution, real‑time notifications, teacher/room management</p>
+    </footer>
+</div>
+
+<script>
+    // ----- INTERACTIVE DEMO: CONFLICT RESOLUTION ALGORITHM (frontend simulation) -----
+    const conflictFeedback = document.getElementById('conflictFeedback');
+    const notificationFeed = document.getElementById('notificationFeed');
+
+    // Helper: add notification to real-time feed
+    function addNotification(message, type = 'info') {
+      const notifDiv = document.createElement('div');
+      notifDiv.style.background = type === 'alert' ? 'rgba(239,68,68,0.15)' : (type === 'success' ? 'rgba(16,185,129,0.15)' : 'rgba(59,130,246,0.1)');
+      notifDiv.style.padding = '8px';
+      notifDiv.style.borderRadius = '16px';
+      notifDiv.style.marginBottom = '6px';
+      notifDiv.style.fontSize = '0.8rem';
+      notifDiv.innerHTML = message;
+      notificationFeed.prepend(notifDiv);
+      if(notificationFeed.children.length > 6) notificationFeed.removeChild(notificationFeed.lastChild);
+    }
+
+    // Simulate pending conflict (frontend state)
+    let pendingConflict = null;
+
+    // function to simulate random scheduling conflict
+    function generateRandomConflict() {
+      const teachers = ['Ms. Ali', 'Mr. Khan', 'Sir Shahmeer Nawaz', 'Dr. Asim'];
+      const rooms = ['Room A', 'Room B', 'CYS Lab', 'Lecture Hall'];
+      const timeSlots = ['Monday 09:00', 'Monday 11:00', 'Tuesday 10:00', 'Wednesday 14:00'];
+      const teacher1 = teachers[Math.floor(Math.random() * teachers.length)];
+      let teacher2 = teachers[Math.floor(Math.random() * teachers.length)];
+      while(teacher2 === teacher1) teacher2 = teachers[Math.floor(Math.random() * teachers.length)];
+      const room = rooms[Math.floor(Math.random() * rooms.length)];
+      const time = timeSlots[Math.floor(Math.random() * timeSlots.length)];
+      pendingConflict = {
+        teacherA: teacher1,
+        teacherB: teacher2,
+        room: room,
+        timeSlot: time,
+        resolved: false
+      };
+      conflictFeedback.innerHTML = `⚠️ New CONFLICT detected: ${room} assigned to both ${teacher1} and ${teacher2} at ${time}. Run resolution algorithm.`;
+      conflictFeedback.style.color = '#f87171';
+      // also visually add to notification feed
+      addNotification(`⚠️ Conflict triggered: ${teacher1} & ${teacher2} double-booked in ${room} @ ${time}`, 'alert');
+    }
+
+    // conflict resolution algorithm: reassign room/time, balance workload (sim)
+    function resolveConflict() {
+      if (!pendingConflict || pendingConflict.resolved) {
+        // if no pending, show some default resolution message from the built-in example
+        conflictFeedback.innerHTML = '✨ Algorithm ran: No active conflicts. System verified all allocations. Conflict-free timetable remains.';
+        conflictFeedback.style.color = '#4ade80';
+        addNotification('⚙️ Conflict resolution engine: all schedules verified, no collisions active.', 'success');
+        return;
+      }
+      // resolve the conflict
+      const { teacherA, teacherB, room, timeSlot } = pendingConflict;
+      // intelligent reassign: we move second teacher to alternative room/time
+      const alternativeRoom = (room === 'Room A') ? 'Room B' : ((room === 'Room B') ? 'CYS Lab' : 'Lecture Hall');
+      const alternativeTime = (timeSlot.includes('09:00')) ? 'Monday 10:00' : 'Tuesday 11:00';
+      const resolutionMsg = `✅ RESOLVED: Conflict fixed. ${teacherB} reassigned to ${alternativeRoom} at ${alternativeTime}. ${teacherA} retains original slot. Workload balanced.`;
+      conflictFeedback.innerHTML = resolutionMsg;
+      conflictFeedback.style.color = '#bbf7d0';
+      pendingConflict.resolved = true;
+      addNotification(`🎯 Auto-resolution: ${teacherB} moved to ${alternativeRoom} (${alternativeTime}) — No further clashes.`, 'success');
+      // Also modify the timetable preview representation: simulated DOM change
+      const timetableCells = document.querySelectorAll('.timetable-preview td');
+      if(timetableCells.length > 2) {
+        // simulate updating some visual element for conflict fixed
+        let targetTd = timetableCells[1];
+        if(targetTd) {
+          targetTd.innerHTML = `<div class="subject-chip" style="background:rgba(16,185,129,0.2);">✅ Reassigned: ${teacherB}</div>`;
+        }
+      }
+      // also add global notification for all users
+      addNotification(`📣 GLOBAL NOTIFICATION (students/teachers): Timetable updated — conflict resolved for ${room}. Check your new schedule.`, 'success');
+    }
+
+    // Publish to all users (real-time updates for all three roles)
+    function publishGlobalUpdate() {
+      addNotification('🔔 ADMIN ACTION: Master timetable published to Students, Teachers & Admin dashboards. Live changes effective.', 'success');
+      addNotification('👩‍🎓 Student alert: Your personal timetable has been refreshed — new room assignments available.', 'info');
+      addNotification('👨‍🏫 Teacher notification: Updated schedule with conflict-free allocations pushed to your portal.', 'info');
+      conflictFeedback.innerHTML = '🚀 Latest schedule version deployed globally. Real-time alerts sent to all roles.';
+      conflictFeedback.style.color = '#86efac';
+      // slight animation
+      const liveBar = document.querySelector('.live-bar');
+      if(liveBar) {
+        liveBar.style.background = 'rgba(59,130,246,0.15)';
+        setTimeout(() => liveBar.style.background = '', 500);
+      }
+    }
+
+    // workload rebalance suggestion
+    function suggestWorkloadBalance() {
+      addNotification('💡 Workload balancing suggestion: Ms. Ali currently 5h, Mr. Khan 4h, Sir Shahmeer 6h. Optimized distribution: shift one lab to Mr. Khan.', 'info');
+      conflictFeedback.innerHTML = '⚖️ Workload balancer: proposed reassigning one theory session from Sir Shahmeer to Mr. Khan for optimal distribution.';
+      conflictFeedback.style.color = '#fde047';
+    }
+
+    // UI listeners
+    document.getElementById('simulateConflictBtn').addEventListener('click', () => {
+      generateRandomConflict();
+    });
+    document.getElementById('resolveEngineBtn').addEventListener('click', () => {
+      resolveConflict();
+    });
+    document.getElementById('publishToAllBtn').addEventListener('click', () => {
+      publishGlobalUpdate();
+    });
+    document.getElementById('balanceLoadBtn').addEventListener('click', () => {
+      suggestWorkloadBalance();
+    });
+    document.getElementById('addDemoNotificationBtn').addEventListener('click', () => {
+      const demoAlerts = ['📌 Timetable admin: New room availability registered', '👩‍🏫 Teacher request: Availability window updated', '🕒 Student complaint registered: Room capacity concern noted'];
+      const randomMsg = demoAlerts[Math.floor(Math.random() * demoAlerts.length)];
+      addNotification(randomMsg, 'info');
+    });
+
+    // initially show a default resolved state message
+    setTimeout(() => {
+      addNotification('🟢 System online: Automatic Timetable Generator active. All objectives integrated.', 'success');
+    }, 500);
+</script>
+</body>
+</html>
+```
